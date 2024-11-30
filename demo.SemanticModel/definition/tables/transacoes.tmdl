@@ -7,8 +7,46 @@ table transacoes
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	measure 'Cotação corrigida' = ```
+			
+			
+			VAR __DataCtx = MAX(calendario[Data]) 
+			
+			VAR __UltimaDataComCotacao = 
+			    CALCULATE(
+			        LASTNONBLANK(calendario[Data], [Cotação do dia]),
+			        calendario[Data] <= __DataCtx
+			    )
+			
+			RETURN
+			    CALCULATE(
+			        [Cotação do dia],
+			        calendario[Data] = __UltimaDataComCotacao
+			    )
+			```
+		displayFolder: Medidas
+		lineageTag: dcd0c6d2-0190-44e4-aed5-a6a2f7a1904e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total R$' = ```
+			
+			SUMX(
+			    moedas,
+			    SUMX(
+			        calendario,
+			        COALESCE([Cotação corrigida], 1) * [Valor Total] 
+			    )
+			)
+			```
+		displayFolder: Medidas
+		lineageTag: 79a19354-c0d9-49fc-8729-cd6ce5e07deb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column ID
 		dataType: double
+		displayFolder: Colunas
 		lineageTag: 577540ba-3794-4f7e-a2a7-3311de3948bf
 		summarizeBy: count
 		sourceColumn: ID
@@ -20,6 +58,7 @@ table transacoes
 	column Data
 		dataType: dateTime
 		formatString: Short Date
+		displayFolder: Colunas
 		lineageTag: f32486ca-c5d0-407c-a546-2581441e55bf
 		summarizeBy: none
 		sourceColumn: Data
@@ -30,6 +69,7 @@ table transacoes
 
 	column Total
 		dataType: double
+		displayFolder: Colunas
 		lineageTag: 0dc95c78-470b-469f-a335-d92757b8065f
 		summarizeBy: sum
 		sourceColumn: Total
@@ -40,6 +80,7 @@ table transacoes
 
 	column Moeda
 		dataType: string
+		displayFolder: Colunas
 		lineageTag: fbcd85b0-b762-4c1e-968f-51369f54a418
 		summarizeBy: none
 		sourceColumn: Moeda
